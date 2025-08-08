@@ -14,38 +14,29 @@ export default function JobForm({ onSuccess }: { onSuccess: () => void }) {
     e.preventDefault()
     setLoading(true)
 
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return alert("Not logged in")
+    const {  { user } } = await supabase.auth.getUser()
+    if (!user) return alert('Harap login terlebih dahulu')
 
     let photoUrl = null
     if (photo) {
       const fileName = `${Date.now()}_${photo.name}`
-      const { error: uploadError } = await supabase.storage
+      const { error } = await supabase.storage
         .from('job-photos')
         .upload(fileName, photo)
 
-      if (uploadError) {
-        alert("Upload gagal")
-        setLoading(false)
-        return
+      if (!error) {
+        photoUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/job-photos/${fileName}`
       }
-
-      photoUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/job-photos/${fileName}`
     }
 
-    const { error } = await supabase.from('jobs').insert({
-      user_id: user.id,
-      service_type: service,
-      location,
-      description,
-      photo_url: photoUrl,
-      status: 'pending'
-    })
+    const { error } = await supabase
+      .from('jobs')
+      .insert({ user_id: user.id, service_type: service, location, description, photo_url: photoUrl, status: 'pending' })
 
     if (error) {
-      alert("Gagal membuat permintaan")
+      alert('Gagal membuat permintaan')
     } else {
-      alert("Permintaan berhasil dibuat!")
+      alert('Permintaan berhasil dibuat!')
       onSuccess()
     }
 
@@ -55,28 +46,52 @@ export default function JobForm({ onSuccess }: { onSuccess: () => void }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label>Jenis Jasa</label>
-        <select value={service} onChange={e => setService(e.target.value)} required className="input" />
-          {/* <option value="">Pilih jasa</option>
-          <option value="AC">Perbaikan AC</option>
-          <option value="Listrik">Listrik</option>
-          <option value="Kebersihan">Kebersihan</option>
-          <option value="Pipa">Perbaikan Pipa</option>
-        </select> */}
+        <label className="block mb-1 font-medium">Jenis Jasa</label>
+        <input
+          type="text"
+          value={service}
+          onChange={(e) => setService(e.target.value)}
+          placeholder="Contoh: Perbaikan AC, Bersihkan rumah, dll"
+          required
+          className="w-full border p-2 rounded"
+        />
       </div>
       <div>
-        <label>Lokasi</label>
-        <input type="text" value={location} onChange={e => setLocation(e.target.value)} required className="input" />
+        <label className="block mb-1 font-medium">Lokasi</label>
+        <input
+          type="text"
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          placeholder="Contoh: Jakarta Selatan"
+          required
+          className="w-full border p-2 rounded"
+        />
       </div>
       <div>
-        <label>Deskripsi</label>
-        <textarea value={description} onChange={e => setDescription(e.target.value)} required className="input" rows={3}></textarea>
+        <label className="block mb-1 font-medium">Deskripsi</label>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Jelaskan kebutuhanmu..."
+          required
+          rows={3}
+          className="w-full border p-2 rounded"
+        ></textarea>
       </div>
       <div>
-        <label>Foto (opsional)</label>
-        <input type="file" accept="image/*" onChange={e => setPhoto(e.target.files?.[0] || null)} className="input" />
+        <label className="block mb-1 font-medium">Foto (opsional)</label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setPhoto(e.target.files?.[0] || null)}
+          className="w-full border p-2 rounded"
+        />
       </div>
-      <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 rounded hover:from-blue-700 hover:to-purple-700"
+      >
         {loading ? 'Mengirim...' : 'Kirim Permintaan'}
       </button>
     </form>

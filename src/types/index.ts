@@ -1,7 +1,6 @@
 export type User = {
   id: string
   email: string
-  role: 'customer' | 'provider'
 }
 
 export type Job = {
@@ -10,18 +9,17 @@ export type Job = {
   service_type: string
   location: string
   description: string
-  photo_url?: string | null
-  status: 'pending' | 'taken'
+  photo_url: string | null
+  status: 'pending'
   created_at: string
-  taken_by?: string | null
 }
 
-export type Provider = {
+export type Profile = {
   id: string
   user_id: string
-  services: string[]
-  location: string
+  full_name: string
   whatsapp: string
-  working_hours: string
-  rating?: number
+  services?: string[]
+  working_hours?: string
+  avatar_url?: string
 }

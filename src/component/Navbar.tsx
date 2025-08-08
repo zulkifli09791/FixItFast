@@ -1,12 +1,12 @@
 'use client'
 
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabaseClient'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import ThemeToggle from './ThemeToggle'
 
 export default function Navbar() {
   const [user, setUser] = useState<any>(null)
-  const pathname = usePathname()
   const router = useRouter()
 
   useEffect(() => {
@@ -16,7 +16,7 @@ export default function Navbar() {
     }
     getUser()
 
-    const { data: listener } = supabase.auth.onAuthStateChange(() => getUser())
+    const { listener } = supabase.auth.onAuthStateChange(() => getUser())
     return () => listener?.subscription.unsubscribe()
   }, [])
 
@@ -25,27 +25,31 @@ export default function Navbar() {
     router.push('/login')
   }
 
-  if (pathname === '/login' || pathname === '/register') return null
-
   return (
-    <nav className="bg-blue-600 text-white p-4 shadow-md">
-      <div className="container mx-auto flex justify-between items-center">
-        <h1 className="text-xl font-bold">FixItFast</h1>
-        <div>
+    <header className="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50">
+      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        <h1
+          onClick={() => router.push('/')}
+          className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent cursor-pointer"
+        >
+          FixItFast
+        </h1>
+        <div className="flex items-center gap-4">
+          <ThemeToggle />
           {user ? (
-            <div className="flex items-center gap-4">
-              <span className="text-sm">Hi, {user.email?.split('@')[0]}</span>
-              <button onClick={handleLogout} className="btn-sm bg-red-500 px-3 py-1 rounded">
-                Logout
-              </button>
-            </div>
+            <button onClick={handleLogout} className="text-sm text-gray-600 hover:text-red-600">
+              Logout
+            </button>
           ) : (
-            <button onClick={() => router.push('/login')} className="btn-sm bg-green-500 px-3 py-1 rounded">
-              Login
+            <button
+              onClick={() => router.push('/login')}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm px-4 py-1 rounded"
+            >
+              Masuk
             </button>
           )}
         </div>
       </div>
-    </nav>
+    </header>
   )
 }
