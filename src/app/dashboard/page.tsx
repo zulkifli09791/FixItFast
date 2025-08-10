@@ -11,7 +11,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     const init = async () => {
-      const {  { user } } = await supabase.auth.getUser()
+      const { data: { user } } = await supabase.auth.getUser()
       if (!user) return window.location.href = '/login'
       setUser(user)
 
@@ -30,7 +30,9 @@ export default function Dashboard() {
         })
         .subscribe()
 
-      return () => supabase.removeChannel(channel)
+      return () => {
+        supabase.removeChannel(channel)
+      }
     }
     init()
   }, [])
